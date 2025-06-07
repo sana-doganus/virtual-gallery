@@ -2494,266 +2494,265 @@
 
     <script>
         (function () {
-            const modal = document.getElementById('modal');
-            const modalImage = document.getElementById('modal-image');
-            const modalCaption = document.getElementById('modal-caption');
-            const modalDesc = document.getElementById('modal-desc');
-            const modalCloseBtn = document.getElementById('modal-close');
-            const modalCloseText = document.getElementById('modal-close-text');
-            const openModalButtons = document.querySelectorAll('.grid-item-button button');
-
-            const gridImages = document.querySelectorAll('.grid-item-actor img');
-            const gridText = document.querySelectorAll('.grid-item-actor-text');
-
-
-            // Случайное перемешивание актеров
-            function shuffle(array) {
-                var currentIndex = array.length,
-                    temporaryValue, randomIndex;
-
-                while (0 !== currentIndex) {
-
-                    randomIndex = Math.floor(Math.random() * currentIndex);
-                    currentIndex -= 1;
-
-                    temporaryValue = array[currentIndex];
-                    array[currentIndex] = array[randomIndex];
-                    array[randomIndex] = temporaryValue;
-                }
-
-                return array;
-            }
-            const container = document.getElementById('grid-container');
-            const children = [...container.children];
-            shuffle(children);
-            document.getElementById('grid-container').innerHTML = "";
-            for (const child of children) {
-                container.appendChild(child);
-            }
-
-
-            // Функция, формирующая всплывающее окно
-            function openModal(item) {
-                const gridItem = item.closest('.grid-item');
-                if (!gridItem) return;
-
-                const img = gridItem.querySelector('img');
-                const h2_item = gridItem.querySelector('h2');
-                const p_item = gridItem.querySelector('p');
-                const caption = gridItem.querySelector('.hidden-text') || '';
-
-                modalImage.src = img.src;
-                modalImage.alt = img.alt || '';
-
-                var altSrc = img.getAttribute('data-alt-src') || "img/undefined.png";
-                modalImage.setAttribute('data-alt-src', altSrc);
-
-                if (!h2_item.getAttribute("data-full-name")) h2_item.setAttribute("data-full-name", "ФИО актера");
-
-                var second_word = h2_item.getAttribute("data-full-name").split(' ')[1];
-
-                if (h2_item.textContent.split(' ')[0] == second_word) {
-                    modalDesc.children[0].textContent = h2_item.getAttribute("data-full-name");
-                    modalImage.alt = h2_item.getAttribute("data-full-name") || '';
-
-                    modalDesc.children[0].setAttribute('data-alt-text', h2_item.getAttribute('data-alt-text'));
-                }
-                else {
-                    modalDesc.children[0].setAttribute('data-alt-text', h2_item.getAttribute("data-full-name"));
-                    modalDesc.children[0].textContent = h2_item.textContent;
-                }
-
-                modalDesc.children[1].textContent = p_item.textContent || 'Должность';
-
-                modalDesc.children[1].setAttribute('data-alt-text', p_item.getAttribute('data-alt-text'));
-
-                modalCaption.innerHTML = caption.innerHTML;
-
-                modal.classList.add('show');
-                modal.focus();
-                document.body.style.overflow = 'hidden';
-            }
-
-            // Функция, закрывающая всплывающее окно
-            function closeModal() {
-                modal.classList.remove('show');
-                modalImage.src = '';
-                modalImage.alt = '';
-                modalDesc.children[0].textContent = '';
-                modalDesc.children[1].textContent = '';
-                modalCaption.innerHTML = '';
-                document.body.style.overflow = '';
-            }
-
-            // Открытие окна по нажатию кнопки
-            openModalButtons.forEach(button => {
-                button.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    openModal(button);
-                });
-            });
-
-            // Закрытие окна мо нажатию кнопки
-            modalCloseBtn.addEventListener('click', closeModal);
-
-            // Закрытие окна по нажатию вне области всплывающего окна
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    closeModal();
-                }
-                if (e.target === modalCloseText) {
-                    closeModal();
-                }
-            });
-
-
-            // Функция, меняющая изображения и подписи
-            function changeImage(img, grid_text, header, info) {
-
-                // Замена изображения на плейсхолдер при отсутствии альтернативного изображения
-                if (img.getAttribute('data-alt-src') == '') img.setAttribute("data-alt-src", 'img/undefined.png');
-
-                var temp_source = img.getAttribute("src");
-                var temp_header = header.textContent;
-                var temp_info = info.textContent;
-
-                if (img.classList.contains('animating')) return; // предотвращение повторных кликов во время анимации
-                img.classList.add('animating');
-                img.style.pointerEvents = 'none';
-
-                // Запуск анимации сжатия
-                img.style.animation = 'compress 250ms forwards ease-in';
-                grid_text.style.animation = 'compress 250ms forwards ease-in';
-
-                // Замена изображений и подписей
-                img.addEventListener('animationend', function handler(e) {
-                    if (e.animationName === 'compress') {
-
-                        img.src = img.getAttribute("data-alt-src");
-                        img.setAttribute("data-alt-src", temp_source);
-
-                        header.textContent = header.getAttribute("data-alt-text");
-                        header.setAttribute("data-alt-text", temp_header);
-
-                        info.textContent = info.getAttribute("data-alt-text");
-                        info.setAttribute("data-alt-text", temp_info);
-
-                        // Запуск анимации расширения
-                        grid_text.style.animation = 'expand 250ms forwards ease-out';
-                        img.style.animation = 'expand 250ms forwards ease-out';
-
-                    } else if (e.animationName === 'expand') {
-
-                        // Удаление стилей и разрешение кликов
-                        img.style.setProperty('--animation-delay', '0s');
-                        img.style.setProperty('animation', getComputedStyle(img).getPropertyValue('--animation-default'));
-                        grid_text.style.animation = '';
-                        img.removeEventListener('animationend', handler);
-                        img.classList.remove('animating');
-                        img.style.pointerEvents = 'auto';
-                    }
-                });
-            }
-
-            // Генерация случайной задержки
-            function randomDelay(img) {
-                var min = 0.25;
-                var max = 2;
-                var random = (Math.random() * (max - min + 1) + min).toFixed(2);
-                img.style.setProperty('--animation-delay', random + 's');
-            }
-
-            // Сценарии для изображений в основном разделе
-            gridImages.forEach(img => {
-
-                // Случайное время задержки анимации
-                randomDelay(img);
-
-                const gridItem = img.closest('.grid-item');
-                const grid_text = gridItem.querySelector('.grid-item-actor-text') || '';
-                const header = gridItem.querySelector('.grid-item-actor h2') || '';
-                const info = gridItem.querySelector('.grid-item-actor p') || '';
-
-
-                // Смена изображения по клику
-                img.addEventListener('click', e => {
-                    changeImage(img, grid_text, header, info);
-                });
-
-                
-                /*function timer() {
-                    changeImage(img, grid_text, header, info)
-                }
-
-                var timer_delay = Math.random() * (30000 - 0 + 1) + 0;
-
-                var timer_range = Math.random() * (15000 - 10000 + 1) + 10000;
-                console.log(img, " has a timer-delay: ", timer_delay, ' and timer-range: ', timer_range);
-
-                setInterval(() => {
-                    setTimeout(timer, timer_delay);
-                }, timer_delay + 10000);
-
-
-                setTimeout(() => {
-                timer();
-                setInterval(timer, timer_range);
-                }, timer_delay);*/
-
-            });
-
-
-            // Случайная смена изображений
-            function chooseImage() {
-                var image = gridImages[Math.floor(Math.random() * gridImages.length)];
-                const gridItem = image.closest('.grid-item');
-                const grid_text = gridItem.querySelector('.grid-item-actor-text') || '';
-                const header = gridItem.querySelector('.grid-item-actor h2') || '';
-                const info = gridItem.querySelector('.grid-item-actor p') || '';
-                changeImage(image, grid_text, header, info);
-            }
-            setInterval(chooseImage, 50000);
-
-            /*var timer_delay = Math.random() * (30000 - 0 + 1) + 0;
-            setTimeout(() => {
-                chooseImage();
-                setInterval(chooseImage, 10000);
-            }, timer_delay);*/
-
-
-            // Сценарии для текста в основном разделе
-            gridText.forEach(item => {
-                item.addEventListener('click', e => {
-
-                    const gridItem = item.closest('.grid-item');
-                    if (!gridItem) return;
-                    const grid_text = gridItem.querySelector('.grid-item-actor-text') || '';
-                    const header = gridItem.querySelector('.grid-item-actor h2') || '';
-                    const info = gridItem.querySelector('.grid-item-actor p') || '';
-                    const img = gridItem.querySelector('img') || '';
-
-                    changeImage(img, grid_text, header, info);
-                });
-
-
-            });
-
-            modalImage.addEventListener('click', e => {
-                const header = modalDesc.querySelector('h2') || '';
-                const info = modalDesc.querySelector('p') || '';
-                changeImage(modalImage, modalDesc, header, info);
-
-            });
-
-            modalDesc.addEventListener('click', e => {
-                const header = modalDesc.querySelector('h2') || '';
-                const info = modalDesc.querySelector('p') || '';
-                changeImage(modalImage, modalDesc, header, info);
-
-            });
-
-
-
+		window.onload = function () {
+	            const modal = document.getElementById('modal');
+	            const modalImage = document.getElementById('modal-image');
+	            const modalCaption = document.getElementById('modal-caption');
+	            const modalDesc = document.getElementById('modal-desc');
+	            const modalCloseBtn = document.getElementById('modal-close');
+	            const modalCloseText = document.getElementById('modal-close-text');
+	            const openModalButtons = document.querySelectorAll('.grid-item-button button');
+	
+	            const gridImages = document.querySelectorAll('.grid-item-actor img');
+	            const gridText = document.querySelectorAll('.grid-item-actor-text');
+	
+	
+	            // Случайное перемешивание актеров
+	            function shuffle(array) {
+	                var currentIndex = array.length,
+	                    temporaryValue, randomIndex;
+	
+	                while (0 !== currentIndex) {
+	
+	                    randomIndex = Math.floor(Math.random() * currentIndex);
+	                    currentIndex -= 1;
+	
+	                    temporaryValue = array[currentIndex];
+	                    array[currentIndex] = array[randomIndex];
+	                    array[randomIndex] = temporaryValue;
+	                }
+	
+	                return array;
+	            }
+	            const container = document.getElementById('grid-container');
+	            const children = [...container.children];
+	            shuffle(children);
+	            document.getElementById('grid-container').innerHTML = "";
+	            for (const child of children) {
+	                container.appendChild(child);
+	            }
+	
+	
+	            // Функция, формирующая всплывающее окно
+	            function openModal(item) {
+	                const gridItem = item.closest('.grid-item');
+	                if (!gridItem) return;
+	
+	                const img = gridItem.querySelector('img');
+	                const h2_item = gridItem.querySelector('h2');
+	                const p_item = gridItem.querySelector('p');
+	                const caption = gridItem.querySelector('.hidden-text') || '';
+	
+	                modalImage.src = img.src;
+	                modalImage.alt = img.alt || '';
+	
+	                var altSrc = img.getAttribute('data-alt-src') || "img/undefined.png";
+	                modalImage.setAttribute('data-alt-src', altSrc);
+	
+	                if (!h2_item.getAttribute("data-full-name")) h2_item.setAttribute("data-full-name", "ФИО актера");
+	
+	                var second_word = h2_item.getAttribute("data-full-name").split(' ')[1];
+	
+	                if (h2_item.textContent.split(' ')[0] == second_word) {
+	                    modalDesc.children[0].textContent = h2_item.getAttribute("data-full-name");
+	                    modalImage.alt = h2_item.getAttribute("data-full-name") || '';
+	
+	                    modalDesc.children[0].setAttribute('data-alt-text', h2_item.getAttribute('data-alt-text'));
+	                }
+	                else {
+	                    modalDesc.children[0].setAttribute('data-alt-text', h2_item.getAttribute("data-full-name"));
+	                    modalDesc.children[0].textContent = h2_item.textContent;
+	                }
+	
+	                modalDesc.children[1].textContent = p_item.textContent || 'Должность';
+	
+	                modalDesc.children[1].setAttribute('data-alt-text', p_item.getAttribute('data-alt-text'));
+	
+	                modalCaption.innerHTML = caption.innerHTML;
+	
+	                modal.classList.add('show');
+	                modal.focus();
+	                document.body.style.overflow = 'hidden';
+	            }
+	
+	            // Функция, закрывающая всплывающее окно
+	            function closeModal() {
+	                modal.classList.remove('show');
+	                modalImage.src = '';
+	                modalImage.alt = '';
+	                modalDesc.children[0].textContent = '';
+	                modalDesc.children[1].textContent = '';
+	                modalCaption.innerHTML = '';
+	                document.body.style.overflow = '';
+	            }
+	
+	            // Открытие окна по нажатию кнопки
+	            openModalButtons.forEach(button => {
+	                button.addEventListener('click', (e) => {
+	                    e.stopPropagation();
+	                    openModal(button);
+	                });
+	            });
+	
+	            // Закрытие окна мо нажатию кнопки
+	            modalCloseBtn.addEventListener('click', closeModal);
+	
+	            // Закрытие окна по нажатию вне области всплывающего окна
+	            modal.addEventListener('click', (e) => {
+	                if (e.target === modal) {
+	                    closeModal();
+	                }
+	                if (e.target === modalCloseText) {
+	                    closeModal();
+	                }
+	            });
+	
+	
+	            // Функция, меняющая изображения и подписи
+	            function changeImage(img, grid_text, header, info) {
+	
+	                // Замена изображения на плейсхолдер при отсутствии альтернативного изображения
+	                if (img.getAttribute('data-alt-src') == '') img.setAttribute("data-alt-src", 'img/undefined.png');
+	
+	                var temp_source = img.getAttribute("src");
+	                var temp_header = header.textContent;
+	                var temp_info = info.textContent;
+	
+	                if (img.classList.contains('animating')) return; // предотвращение повторных кликов во время анимации
+	                img.classList.add('animating');
+	                img.style.pointerEvents = 'none';
+	
+	                // Запуск анимации сжатия
+	                img.style.animation = 'compress 250ms forwards ease-in';
+	                grid_text.style.animation = 'compress 250ms forwards ease-in';
+	
+	                // Замена изображений и подписей
+	                img.addEventListener('animationend', function handler(e) {
+	                    if (e.animationName === 'compress') {
+	
+	                        img.src = img.getAttribute("data-alt-src");
+	                        img.setAttribute("data-alt-src", temp_source);
+	
+	                        header.textContent = header.getAttribute("data-alt-text");
+	                        header.setAttribute("data-alt-text", temp_header);
+	
+	                        info.textContent = info.getAttribute("data-alt-text");
+	                        info.setAttribute("data-alt-text", temp_info);
+	
+	                        // Запуск анимации расширения
+	                        grid_text.style.animation = 'expand 250ms forwards ease-out';
+	                        img.style.animation = 'expand 250ms forwards ease-out';
+	
+	                    } else if (e.animationName === 'expand') {
+	
+	                        // Удаление стилей и разрешение кликов
+	                        img.style.setProperty('--animation-delay', '0s');
+	                        img.style.setProperty('animation', getComputedStyle(img).getPropertyValue('--animation-default'));
+	                        grid_text.style.animation = '';
+	                        img.removeEventListener('animationend', handler);
+	                        img.classList.remove('animating');
+	                        img.style.pointerEvents = 'auto';
+	                    }
+	                });
+	            }
+	
+	            // Генерация случайной задержки
+	            function randomDelay(img) {
+	                var min = 0.25;
+	                var max = 2;
+	                var random = (Math.random() * (max - min + 1) + min).toFixed(2);
+	                img.style.setProperty('--animation-delay', random + 's');
+	            }
+	
+	            // Сценарии для изображений в основном разделе
+	            gridImages.forEach(img => {
+	
+	                // Случайное время задержки анимации
+	                randomDelay(img);
+	
+	                const gridItem = img.closest('.grid-item');
+	                const grid_text = gridItem.querySelector('.grid-item-actor-text') || '';
+	                const header = gridItem.querySelector('.grid-item-actor h2') || '';
+	                const info = gridItem.querySelector('.grid-item-actor p') || '';
+	
+	
+	                // Смена изображения по клику
+	                img.addEventListener('click', e => {
+	                    changeImage(img, grid_text, header, info);
+	                });
+	
+	                
+	                /*function timer() {
+	                    changeImage(img, grid_text, header, info)
+	                }
+	
+	                var timer_delay = Math.random() * (30000 - 0 + 1) + 0;
+	
+	                var timer_range = Math.random() * (15000 - 10000 + 1) + 10000;
+	                console.log(img, " has a timer-delay: ", timer_delay, ' and timer-range: ', timer_range);
+	
+	                setInterval(() => {
+	                    setTimeout(timer, timer_delay);
+	                }, timer_delay + 10000);
+	
+	
+	                setTimeout(() => {
+	                timer();
+	                setInterval(timer, timer_range);
+	                }, timer_delay);*/
+	
+	            });
+	
+	
+	            // Случайная смена изображений
+	            function chooseImage() {
+	                var image = gridImages[Math.floor(Math.random() * gridImages.length)];
+	                const gridItem = image.closest('.grid-item');
+	                const grid_text = gridItem.querySelector('.grid-item-actor-text') || '';
+	                const header = gridItem.querySelector('.grid-item-actor h2') || '';
+	                const info = gridItem.querySelector('.grid-item-actor p') || '';
+	                changeImage(image, grid_text, header, info);
+	            }
+	            setInterval(chooseImage, 50000);
+	
+	            /*var timer_delay = Math.random() * (30000 - 0 + 1) + 0;
+	            setTimeout(() => {
+	                chooseImage();
+	                setInterval(chooseImage, 10000);
+	            }, timer_delay);*/
+	
+	
+	            // Сценарии для текста в основном разделе
+	            gridText.forEach(item => {
+	                item.addEventListener('click', e => {
+	
+	                    const gridItem = item.closest('.grid-item');
+	                    if (!gridItem) return;
+	                    const grid_text = gridItem.querySelector('.grid-item-actor-text') || '';
+	                    const header = gridItem.querySelector('.grid-item-actor h2') || '';
+	                    const info = gridItem.querySelector('.grid-item-actor p') || '';
+	                    const img = gridItem.querySelector('img') || '';
+	
+	                    changeImage(img, grid_text, header, info);
+	                });
+	
+	
+	            });
+	
+	            modalImage.addEventListener('click', e => {
+	                const header = modalDesc.querySelector('h2') || '';
+	                const info = modalDesc.querySelector('p') || '';
+	                changeImage(modalImage, modalDesc, header, info);
+	
+	            });
+	
+	            modalDesc.addEventListener('click', e => {
+	                const header = modalDesc.querySelector('h2') || '';
+	                const info = modalDesc.querySelector('p') || '';
+	                changeImage(modalImage, modalDesc, header, info);
+	
+	            });
+		}
         })();
     </script>
 </body>
