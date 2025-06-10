@@ -2586,6 +2586,17 @@
 
             const gridImages = document.querySelectorAll('.grid-item-actor img');
             const gridText = document.querySelectorAll('.grid-item-actor-text');
+            
+            const altImages = [];
+            gridImages.forEach(img => {
+                if (img.getAttribute('data-alt-src')) {
+                  img.src = img.getAttribute('data-alt-src');
+                  altImages.push(img);
+                }
+            });
+            altImages.forEach(item => {
+            images.push(item);
+            });
 
             const images = Array.from(mainContent.querySelectorAll('img'));
 
@@ -2631,6 +2642,7 @@
                         changeImage(img, grid_text, header, info);
                     });
                 });
+
                 sleep(3000).then(() => {
                     gridImages.forEach(img => {
                         randomDelay(img);
