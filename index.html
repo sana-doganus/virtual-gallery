@@ -2585,20 +2585,16 @@
             mainContent.style.setProperty('--container-gap', portraitGap+'px');
 
             const gridImages = document.querySelectorAll('.grid-item-actor img');
+            const altImages = gridImages;
             const gridText = document.querySelectorAll('.grid-item-actor-text');
+            const images = Array.from(mainContent.querySelectorAll('img'));
             
-            const altImages = [];
-            gridImages.forEach(img => {
+            altImages.forEach(img => {
                 if (img.getAttribute('data-alt-src')) {
-                  img.src = img.getAttribute('data-alt-src');
-                  altImages.push(img);
+                    img.src = img.getAttribute('data-alt-src');
+                    images.push(img);
                 }
             });
-            altImages.forEach(item => {
-            images.push(item);
-            });
-
-            const images = Array.from(mainContent.querySelectorAll('img'));
 
             // Генерация случайной задержки
             function randomDelay(img) {
