@@ -2599,6 +2599,7 @@
                         images.push(img);
                         changeImage(img, grid_text, header, info);
                     });
+            });
 
             // Генерация случайной задержки
             function randomDelay(img) {
@@ -2630,7 +2631,6 @@
             }
 
             function hideLoader() {
-                
                 sleep(3000).then(() => {
                     gridImages.forEach(img => {
                         randomDelay(img);
