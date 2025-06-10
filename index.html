@@ -2587,13 +2587,14 @@
 
             const gridImages = document.querySelectorAll('.grid-item-actor img');
             const gridText = document.querySelectorAll('.grid-item-actor-text');
-            const altImages = Array.from(gridImages);
+            const altImages = gridImages;
             
             altImages.forEach(img => {
                 if (img.getAttribute('data-alt-src')) {
-                    //var altImg = img;
-                    img.src = img.getAttribute('data-alt-src');
-                    images.push(img);
+                    var altImg = img.cloneNode(true);
+                    console.log(altImg);
+                    altImg.src = altImg.getAttribute('data-alt-src');
+                    images.push(altImg);
                 }
             });
 
