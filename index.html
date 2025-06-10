@@ -2587,10 +2587,11 @@
 
             const gridImages = document.querySelectorAll('.grid-item-actor img');
             const gridText = document.querySelectorAll('.grid-item-actor-text');
-            const altImages = gridImages.slice();
+            const altImages = Array.from(gridItems);
             
             altImages.forEach(img => {
                 if (img.getAttribute('data-alt-src')) {
+                    //var altImg = img;
                     img.src = img.getAttribute('data-alt-src');
                     images.push(img);
                 }
