@@ -340,6 +340,7 @@
         }
         ul {
             background-color: blue;
+            text-align: left;
         }
 
          /* Футер */
@@ -2587,20 +2588,6 @@
             const gridText = document.querySelectorAll('.grid-item-actor-text');
 
             const images = Array.from(mainContent.querySelectorAll('img'));
-             gridImages.forEach(img => {
-
-                    const gridItem = img.closest('.grid-item');
-                    const grid_text = gridItem.querySelector('.grid-item-actor-text') || '';
-                    const header = gridItem.querySelector('.grid-item-actor h2') || '';
-                    const info = gridItem.querySelector('.grid-item-actor p') || '';
-
-                    changeImage(img, grid_text, header, info);
-                    sleep(1000).then(() => {
-                        images.push(img);
-                        console.log(images);
-                        changeImage(img, grid_text, header, info);
-                    });
-            });
 
             // Генерация случайной задержки
             function randomDelay(img) {
@@ -2632,6 +2619,18 @@
             }
 
             function hideLoader() {
+                gridImages.forEach(img => {
+
+                    const gridItem = img.closest('.grid-item');
+                    const grid_text = gridItem.querySelector('.grid-item-actor-text') || '';
+                    const header = gridItem.querySelector('.grid-item-actor h2') || '';
+                    const info = gridItem.querySelector('.grid-item-actor p') || '';
+
+                    changeImage(img, grid_text, header, info);
+                    sleep(1000).then(() => {
+                        changeImage(img, grid_text, header, info);
+                    });
+                });
                 sleep(3000).then(() => {
                     gridImages.forEach(img => {
                         randomDelay(img);
@@ -2640,7 +2639,6 @@
                     });
 
                     loadingOverlay.classList.add('hidden');
-
                     loadingOverlay.addEventListener('transitionend', () => {
                         loadingOverlay.style.display = 'none';
                     }, { once: true });
