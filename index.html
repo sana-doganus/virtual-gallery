@@ -338,6 +338,9 @@
             table-layout: fixed;
             border:dotted;
         }
+        ul {
+            background-color: blue;
+        }
 
          /* Футер */
         .footer {
@@ -2598,6 +2601,19 @@
                 return new Promise(resolve => setTimeout(resolve, ms));
             }
 
+            gridImages.forEach(img => {
+
+                    const gridItem = img.closest('.grid-item');
+                    const grid_text = gridItem.querySelector('.grid-item-actor-text') || '';
+                    const header = gridItem.querySelector('.grid-item-actor h2') || '';
+                    const info = gridItem.querySelector('.grid-item-actor p') || '';
+
+                    changeImage(img, grid_text, header, info);
+                    sleep(1000).then(() => {
+                        changeImage(img, grid_text, header, info);
+                    });
+                });
+
             /*if (images.length === 0) {
                 hideLoader();
                 return;
@@ -2615,25 +2631,11 @@
             }
 
             function hideLoader() {
-
-                gridImages.forEach(img => {
-
-                    const gridItem = img.closest('.grid-item');
-                    const grid_text = gridItem.querySelector('.grid-item-actor-text') || '';
-                    const header = gridItem.querySelector('.grid-item-actor h2') || '';
-                    const info = gridItem.querySelector('.grid-item-actor p') || '';
-
-                    changeImage(img, grid_text, header, info);
-                    sleep(1000).then(() => {
-                        changeImage(img, grid_text, header, info);
-                    });
-                });
+                
                 sleep(3000).then(() => {
-
                     gridImages.forEach(img => {
                         randomDelay(img);
                         console.log(img.style.getPropertyValue('--animation-delay'));
-
                         img.style.setProperty('animation', getComputedStyle(img).getPropertyValue('--animation-default'));
                     });
 
