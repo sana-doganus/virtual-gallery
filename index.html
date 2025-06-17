@@ -47,7 +47,7 @@
 
         /* Дочерний контейнер */
         .grid-item {
-            flex: 0 0 calc((100% – (var(--columns) – 1) * var(--container-gap)) / var(--columns));
+            flex: 0 0 calc((100% - (var(--columns) - 1) * var(--container-gap)) / var(--columns));
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -2865,7 +2865,7 @@
             }
             setInterval(chooseImage, 50000);
 
-            /*var timer_delay = Math.random() * (30000 – 0 + 1) + 0;
+            /*var timer_delay = Math.random() * (30000 - 0 + 1) + 0;
             setTimeout(() => {
                 chooseImage();
                 setInterval(chooseImage, 10000);
